@@ -50,6 +50,8 @@ namespace ADONet_MovieRegister.Repository
             return movies; // Returnerar alla filmer
         }
 
+
+
         // Hämtar alla filmer som tillhör en viss genre
         public List<Movie> GetMoviesByGenre(int genreId)
         {
@@ -90,6 +92,8 @@ namespace ADONet_MovieRegister.Repository
             return movies; // Returnerar alla filmer som matchar genren
         }
 
+
+
         // Lägger till en ny film i databasen
         public void AddMovie(Movie movie)
         {
@@ -111,6 +115,7 @@ namespace ADONet_MovieRegister.Repository
                 }
             }
         }
+
 
 
         // Uppdaterar en befintlig film i databasen
@@ -135,6 +140,8 @@ namespace ADONet_MovieRegister.Repository
                 }
             }
         }
+
+
 
         // Tar bort en film från databasen baserat på MovieId
         public void DeleteMovie(int movieId)
