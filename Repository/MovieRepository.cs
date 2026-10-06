@@ -95,7 +95,7 @@ namespace ADONet_MovieRegister.Repository
 
 
         // Lägger till en ny film i databasen
-        public void AddMovie(Movie movie)
+        public void AddMovie(string title, int year, int genreId)
         {
             // Skapar en databasanslutning med connection string från DbConfig
             using (var connection = new SqlConnection(DbConfig.ConnectionString))
@@ -108,9 +108,9 @@ namespace ADONet_MovieRegister.Repository
                 // Skapar SQL-kommandot som ska köras
                 using (var command = new SqlCommand(sql, connection))
                 {
-                    command.Parameters.AddWithValue("@Title", movie.Title);
-                    command.Parameters.AddWithValue("@Year", movie.Year);
-                    command.Parameters.AddWithValue("@GenreId", movie.GenreId);
+                    command.Parameters.AddWithValue("@Title", title);
+                    command.Parameters.AddWithValue("@Year", year);
+                    command.Parameters.AddWithValue("@GenreId", genreId);
                     command.ExecuteNonQuery();
                 }
             }
@@ -119,7 +119,7 @@ namespace ADONet_MovieRegister.Repository
 
 
         // Uppdaterar en befintlig film i databasen
-        public void UpdateMovie(Movie movie)
+        public void UpdateMovie(int movieId, string title, int year, int genreId)
         {
             // Skapar en databasanslutning med connection string från DbConfig
             using (var connection = new SqlConnection(DbConfig.ConnectionString))
@@ -132,10 +132,10 @@ namespace ADONet_MovieRegister.Repository
                 // Skapar SQL-kommandot som ska köras
                 using (var command = new SqlCommand(sql, connection))
                 {
-                    command.Parameters.AddWithValue("@Title", movie.Title);
-                    command.Parameters.AddWithValue("@Year", movie.Year);
-                    command.Parameters.AddWithValue("@GenreId", movie.GenreId);
-                    command.Parameters.AddWithValue("@MovieId", movie.MovieId);
+                    command.Parameters.AddWithValue("@Title", title);
+                    command.Parameters.AddWithValue("@Year", year);
+                    command.Parameters.AddWithValue("@GenreId", genreId);
+                    command.Parameters.AddWithValue("@MovieId", movieId);
                     command.ExecuteNonQuery();
                 }
             }
