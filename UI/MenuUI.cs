@@ -1,4 +1,5 @@
 ﻿
+using ADONet_MovieRegister.Models;
 using ADONet_MovieRegister.Repository;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,7 @@ namespace ADONet_MovieRegister.UI
             while (running)
             {
                 Console.Clear();
-                Console.WriteLine("--- Filmregister ---");
+                Console.WriteLine("=== Filmregister ===");
                 Console.WriteLine("1. Visa alla filmer");
                 Console.WriteLine("2. Sök filmer efter genre");
                 Console.WriteLine("3. Lägg till film");
@@ -62,6 +63,80 @@ namespace ADONet_MovieRegister.UI
                     Console.WriteLine($"Ett fel uppstod: {ex.Message}");
                 }
             }
+        }
+
+        public void ShowAllMovies()
+        {
+            var movies = movieRepo.GetAllMovies(); // Hämtar alla filmer från repository
+
+            Console.WriteLine("=== Alla filmer ===\n");
+
+            foreach (var movie in movies) // Loopar igenom alla filmer och skriver ut deras information
+            {
+                Console.WriteLine($"ID: {movie.MovieId}, Titel: {movie.Title}, År: {movie.Year}, Genre: {movie.GenreName}");
+            }
+        }
+
+        public void ShowAllGenres()
+        {
+            Console.WriteLine("Sök film efter genre: ");
+            string genreName = Console.ReadLine()!; // Tar emot användarens input för genre
+
+            var genres = genreRepo.GetAllGenres(); // Hämtar alla genrer från repository
+
+            Console.Clear(); // Rensar konsolen innan genrerna skrivs ut
+
+            Console.WriteLine("=== Alla genrer ===\n");
+
+            foreach (var genre in genres) // Loopar igenom alla genrer och skriver ut deras information
+            {
+                Console.WriteLine($"ID: {genre.GenreId}, Namn: {genre.GenreName}");
+            }
+        }
+
+        private void AddMovie()
+        {
+            Console.WriteLine("=== Lägg till film ===\n");
+
+            // Titel för filmen, kontrollerar om den är tom eller bara whitespace
+            Console.WriteLine("Ange titel: ");
+            string title = Console.ReadLine()!;
+
+            if (string.IsNullOrWhiteSpace(title))
+            {
+                Console.WriteLine("Titeln får inte vara tom. Försök igen.");
+                return; // Avslutar metoden om titeln är tom
+            }
+
+            // Årtal för filmen, kontrollerar om det är ett giltigt heltal
+            Console.WriteLine("Ange årtal: ");
+            if (!int.TryParse(Console.ReadLine(), out int year))
+            {
+                Console.WriteLine("Ogiltigt årtal. Försök igen.");
+                return;
+            }
+
+            // Genrelista för att visa användaren vilka genrer som finns tillgängliga
+            var genres = genreRepo.GetAllGenres(); // Hämtar alla genrer från repository
+            Console.WriteLine("\nAnge genre: ");
+
+            foreach (var genre in genres) // Loopar igenom alla genrer och skriver ut deras information
+            {
+                Console.WriteLine($"ID: {genre.GenreId}, Namn: {genre.GenreName}");
+            }
+
+            Console.WriteLine("Ange genre-ID: ");
+            if (!int.TryParse(Console.ReadLine(), out int genreId) || !genres.Exists(g => g.GenreId == genreId)) // Kontrollera om genre-ID är giltigt
+            {
+                Console.WriteLine("Ogiltigt genre-ID. Försök igen.");
+                return; // Avslutar metoden om genre-ID är ogiltigt
+            }
+
+            movieRepo.AddMovie(title, year, genreId); // Lägger till filmen i repository
+
+            Console.WriteLine($"\nFilmen '{title}' ({year}) har lagts till!");
+
+
         }
     }
 }
