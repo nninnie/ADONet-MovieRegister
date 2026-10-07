@@ -107,12 +107,7 @@ namespace ADONet_MovieRegister.UI
             // Skriver ut tabellen med filmerna till konsolen
             AnsiConsole.Write(table);
 
-            // Skriver ut ett meddelande om att användaren kan trycka ESC för att gå tillbaka
-            AnsiConsole.MarkupLine("\n[grey]Tryck ESC för att gå tillbaka...[/]");
-
-            var key = Console.ReadKey(true);
-            if (key.Key == ConsoleKey.Escape)
-                return;
+            WaitForKey(); // Skriver ut ett meddelande om att användaren kan trycka valfri tangent för att gå tillbaka
 
         }
 
@@ -170,12 +165,7 @@ namespace ADONet_MovieRegister.UI
                 AnsiConsole.Write(table);
             }
 
-            // Skriver ut ett meddelande om att användaren kan trycka ESC för att gå tillbaka
-            AnsiConsole.MarkupLine("\n[grey]Tryck ESC för att gå tillbaka...[/]");
-
-            var key = Console.ReadKey(true);
-            if (key.Key == ConsoleKey.Escape)
-                return;
+            WaitForKey(); // Skriver ut ett meddelande om att användaren kan trycka valfri tangent för att gå tillbaka
 
         }
 
@@ -197,6 +187,7 @@ namespace ADONet_MovieRegister.UI
             if (string.IsNullOrWhiteSpace(title)) // Kollar om titeln är tom eller bara innehåller whitespace
             {
                 AnsiConsole.MarkupLine("[red]Titel får inte vara tom.[/]");
+                WaitForKey();
                 return;
             }
 
@@ -205,6 +196,7 @@ namespace ADONet_MovieRegister.UI
             if (year <= 0 || year > DateTime.Now.Year) // Kollar om året är negativt eller i framtiden
             {
                 AnsiConsole.MarkupLine("[red]År får inte vara negativt eller i framtiden.[/]");
+                WaitForKey();
                 return;
             }
 
@@ -222,12 +214,7 @@ namespace ADONet_MovieRegister.UI
 
             AnsiConsole.MarkupLine($"\n[green]Filmen '{title}' har lagts till![/]"); // Skriver ut ett meddelande om att filmen har lagts till
 
-            // Skriver ut ett meddelande om att användaren kan trycka på valfri tangent för att återgå
-            AnsiConsole.MarkupLine("\n[grey]Tryck ESC för att gå tillbaka...[/]");
-
-            var key = Console.ReadKey(true);
-            if (key.Key == ConsoleKey.Escape)
-                return;
+            WaitForKey(); // Skriver ut ett meddelande om att användaren kan trycka valfri tangent för att gå tillbaka
 
         }
 
@@ -245,6 +232,13 @@ namespace ADONet_MovieRegister.UI
 
             var movies = movieRepo.GetAllMovies(); // Hämtar alla filmer
 
+            if (movies.Count == 0) // Kollar om det finns några filmer att uppdatera
+            {
+                AnsiConsole.MarkupLine("\n[grey]Inga filmer hittades att uppdatera.[/]");
+                WaitForKey();
+                return;
+            }
+
             // Loopar igenom alla filmer och skriver ut deras information
             var movieChoice = AnsiConsole.Prompt(
                 new SelectionPrompt<Movie>()
@@ -261,6 +255,7 @@ namespace ADONet_MovieRegister.UI
             if (string.IsNullOrWhiteSpace(newTitle)) // Kollar om titeln är tom eller bara innehåller whitespace
             {
                 AnsiConsole.MarkupLine("[red]Titel får inte vara tom.[/]");
+                WaitForKey();
                 return;
             }
 
@@ -272,6 +267,7 @@ namespace ADONet_MovieRegister.UI
             if (newYear <= 0 || newYear > DateTime.Now.Year) // Kollar om året är negativt eller i framtiden    
             {
                 AnsiConsole.MarkupLine("[red]År får inte vara negativt eller i framtiden.[/]");
+                WaitForKey();
                 return;
             }
 
@@ -290,12 +286,7 @@ namespace ADONet_MovieRegister.UI
             // Skriver ut ett meddelande om att filmen har uppdaterats
             AnsiConsole.MarkupLine("\n[green]Filmen har uppdaterats![/]");
 
-            // Skriver ut ett meddelande om att användaren kan trycka ESC för att gå tillbaka
-            AnsiConsole.MarkupLine("\n[grey]Tryck ESC för att gå tillbaka...[/]");
-
-            var key = Console.ReadKey(true);
-            if (key.Key == ConsoleKey.Escape)
-                return;
+            WaitForKey(); // Skriver ut ett meddelande om att användaren kan trycka valfri tangent för att gå tillbaka
 
 
         }
@@ -314,6 +305,13 @@ namespace ADONet_MovieRegister.UI
 
             var movies = movieRepo.GetAllMovies(); // Hämtar alla filmer
 
+            if (movies.Count == 0) // Kollar om det finns några filmer att ta bort
+            {
+                AnsiConsole.MarkupLine("\n[grey]Inga filmer hittades att ta bort.[/]");
+                WaitForKey(); 
+                return;
+            }
+
             // Visar en lista med filmer och låter användaren välja en film att ta bort
             var movieChoice = AnsiConsole.Prompt(
                 new SelectionPrompt<Movie>()
@@ -327,12 +325,14 @@ namespace ADONet_MovieRegister.UI
             // Skriver ut ett meddelande om att filmen har tagits bort
             AnsiConsole.MarkupLine($"\n[green]Filmen '{movieChoice.Title}' har tagits bort![/]");
 
-            // Skriver ut ett meddelande om att användaren kan trycka ESC för att gå tillbaka
-            AnsiConsole.MarkupLine("\n[grey]Tryck ESC för att gå tillbaka...[/]");
-            var key = Console.ReadKey(true);
-            if (key.Key == ConsoleKey.Escape)
-                return;
+            WaitForKey(); // Skriver ut ett meddelande om att användaren kan trycka valfri tangent för att gå tillbaka
+        }
 
+
+        private void WaitForKey()
+        {
+            AnsiConsole.MarkupLine("\n[grey]Tryck på valfri tangent för att gå tillbaka...[/]");
+            Console.ReadKey(true);
         }
     }
 }

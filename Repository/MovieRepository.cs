@@ -101,7 +101,7 @@ namespace ADONet_MovieRegister.Repository
             {
                 connection.Open(); // Öppnar databasanslutningen
 
-                // SQL - fråga: lägger till en ny film i Movies - tabellen
+                // SQL - fråga: lägger till en ny film i Movie - tabellen
                 var sql = @"INSERT INTO Movie (Title, Year, GenreId) VALUES (@Title, @Year, @GenreId)";
 
                 // Skapar SQL-kommandot som ska köras
@@ -125,7 +125,7 @@ namespace ADONet_MovieRegister.Repository
             {
                 connection.Open(); // Öppnar databasanslutningen
 
-                // SQL - fråga: uppdaterar en film i Movies - tabellen
+                // SQL - fråga: uppdaterar en film i Movie - tabellen
                 var sql = @"UPDATE Movie SET Title = @Title, Year = @Year, GenreId = @GenreId WHERE MovieId = @MovieId";
 
                 // Skapar SQL-kommandot som ska köras
@@ -150,7 +150,7 @@ namespace ADONet_MovieRegister.Repository
             {
                 connection.Open(); // Öppnar databasanslutningen
 
-                // SQL - fråga: tar bort en film från Movies - tabellen baserat på MovieId
+                // SQL - fråga: tar bort en film från Movie - tabellen baserat på MovieId
                 var sql = @"DELETE FROM Movie WHERE MovieId = @MovieId";
 
                 // Skapar SQL-kommandot som ska köras

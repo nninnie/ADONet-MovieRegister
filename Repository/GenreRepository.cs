@@ -11,7 +11,7 @@ namespace ADONet_MovieRegister.Repository
     public class GenreRepository
     {
         // Hämtar alla genrer från databasen och returnerar dem som Genre-objekt
-        public List <Genre> GetAllGenres()
+        public List<Genre> GetAllGenres()
         {
             // Skapar en lista för att lagra genrerna
             var genres = new List<Genre>();
