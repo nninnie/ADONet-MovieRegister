@@ -26,9 +26,9 @@ namespace ADONet_MovieRegister.UI
                 AnsiConsole.Clear();
 
                 AnsiConsole.Write(
-                    new Panel("[bold orange1]FILMREGISTER[/]")
-                        .BorderColor(Color.Orange1)
-                        .Expand()
+                    new Panel("[bold hotpink]FILMREGISTER[/]")
+                        .Border(BoxBorder.Rounded)
+                        .BorderColor(Color.Yellow)
                 );
 
                 var choice = AnsiConsole.Prompt(
@@ -43,7 +43,6 @@ namespace ADONet_MovieRegister.UI
                             "Avsluta"
                         )
                 );
-
 
                 // Switch-sats för att hantera användarens val
                 switch (choice)
@@ -79,14 +78,15 @@ namespace ADONet_MovieRegister.UI
         // ==== VISA ALLA FILMER ====
         public void ShowAllMovies()
         {
+            AnsiConsole.Clear(); // Rensar skärmen
+
             // Hämtar alla filmer från repository
             var movies = movieRepo.GetAllMovies();
 
             // Rensar konsolen innan filmerna skrivs ut
             AnsiConsole.Write(
                 new Panel("[bold orange1]=== Alla filmer ===[/]")
-                    .BorderColor(Color.Orange1)
-                    .Expand()
+                    .BorderColor(Color.Pink1)
             );
 
             // Skapar en ny tabell för att visa filmerna
@@ -107,19 +107,24 @@ namespace ADONet_MovieRegister.UI
             // Skriver ut tabellen med filmerna till konsolen
             AnsiConsole.Write(table);
 
-            // Skriver ut ett meddelande om att användaren kan trycka på valfri tangent för att återgå
-            AnsiConsole.MarkupLine("\n[grey]Tryck på valfri tangent för att återgå...[/]");
-            Console.ReadKey();
+            // Skriver ut ett meddelande om att användaren kan trycka ESC för att gå tillbaka
+            AnsiConsole.MarkupLine("\n[grey]Tryck ESC för att gå tillbaka...[/]");
+
+            var key = Console.ReadKey(true);
+            if (key.Key == ConsoleKey.Escape)
+                return;
+
         }
 
 
         // ==== VISA FILM EFTER GENRE ====
         public void ShowAllGenres()
         {
+            AnsiConsole.Clear(); // Rensar skärmen
+
             AnsiConsole.Write(
                 new Panel("[bold orange1]=== Sök filmer efter genre ===[/]")
-                    .BorderColor(Color.Orange1)
-                    .Expand()
+                    .BorderColor(Color.Pink1)
             );
 
             var genres = genreRepo.GetAllGenres(); // Hämtar alla genrer från repository
@@ -127,6 +132,7 @@ namespace ADONet_MovieRegister.UI
             var genreChoice = AnsiConsole.Prompt(
                 new SelectionPrompt<Genre>()
                     .Title("[cyan]Välj en genre:[/]")
+                    .UseConverter(g => $"{g.GenreId}. {g.GenreName}")
                     .AddChoices(genres) // Lägger till alla genrer som val
             );
 
@@ -136,8 +142,7 @@ namespace ADONet_MovieRegister.UI
 
             AnsiConsole.Write(
                 new Panel($"[bold orange1]=== Filmer i genren: {genreChoice.GenreName} ===[/]")
-                    .BorderColor(Color.Orange1)
-                    .Expand()
+                    .BorderColor(Color.Pink1)
             );
 
             // Om inga filmer hittades i den valda genren, skriv ut ett meddelande
@@ -153,7 +158,8 @@ namespace ADONet_MovieRegister.UI
                     .BorderColor(Color.Orange1)
                     .AddColumn("ID")
                     .AddColumn("Titel")
-                    .AddColumn("År");
+                    .AddColumn("År")
+                    .AddColumn("Genre");
 
                 // Loopar igenom alla filmer i den valda genren och lägger till dem i tabellen
                 foreach (var movie in movies)
@@ -164,9 +170,12 @@ namespace ADONet_MovieRegister.UI
                 AnsiConsole.Write(table);
             }
 
-            // Skriver ut ett meddelande om att användaren kan trycka på valfri tangent för att återgå
-            AnsiConsole.MarkupLine("\n[grey]Tryck på valfri tangent för att återgå...[/]");
-            Console.ReadKey();
+            // Skriver ut ett meddelande om att användaren kan trycka ESC för att gå tillbaka
+            AnsiConsole.MarkupLine("\n[grey]Tryck ESC för att gå tillbaka...[/]");
+
+            var key = Console.ReadKey(true);
+            if (key.Key == ConsoleKey.Escape)
+                return;
 
         }
 
@@ -180,8 +189,7 @@ namespace ADONet_MovieRegister.UI
             // Skriver ut en panel med rubriken "Lägg till film"
             AnsiConsole.Write(
                 new Panel("[bold orange1]=== Lägg till film ===[/]")
-                    .BorderColor(Color.Orange1)
-                    .Expand()
+                    .BorderColor(Color.Pink1)
                     );
 
             // Frågar användaren om titel och år för den nya filmen
@@ -208,19 +216,25 @@ namespace ADONet_MovieRegister.UI
 
             AnsiConsole.MarkupLine($"\n[green]Filmen '{title}' har lagts till![/]"); // Skriver ut ett meddelande om att filmen har lagts till
 
-            AnsiConsole.MarkupLine("\n[grey]Tryck på valfri tangent för att återgå till menyn...[/]");
-            Console.ReadKey();
+            // Skriver ut ett meddelande om att användaren kan trycka på valfri tangent för att återgå
+            AnsiConsole.MarkupLine("\n[grey]Tryck ESC för att gå tillbaka...[/]");
+
+            var key = Console.ReadKey(true);
+            if (key.Key == ConsoleKey.Escape)
+                return;
+
         }
 
 
         // ==== UPPDATERA FILM ====
         public void UpdateMovie()
         {
+            AnsiConsole.Clear(); // Rensar skärmen
+
             // Rensar konsolen innan användaren uppdaterar en film
             AnsiConsole.Write(
                 new Panel("[bold orange1]=== Uppdatera film ===[/]")
-                    .BorderColor(Color.Orange1)
-                    .Expand()
+                    .BorderColor(Color.Pink1)
             );
 
             var movies = movieRepo.GetAllMovies(); // Hämtar alla filmer
@@ -256,8 +270,14 @@ namespace ADONet_MovieRegister.UI
 
             // Skriver ut ett meddelande om att filmen har uppdaterats
             AnsiConsole.MarkupLine("\n[green]Filmen har uppdaterats![/]");
-            AnsiConsole.MarkupLine("\n[grey]Tryck på valfri tangent för att återgå till menyn...[/]");
-            Console.ReadKey();
+
+            // Skriver ut ett meddelande om att användaren kan trycka ESC för att gå tillbaka
+            AnsiConsole.MarkupLine("\n[grey]Tryck ESC för att gå tillbaka...[/]");
+
+            var key = Console.ReadKey(true);
+            if (key.Key == ConsoleKey.Escape)
+                return;
+
 
         }
 
@@ -265,11 +285,12 @@ namespace ADONet_MovieRegister.UI
         // ==== TA BORT FILM ====
         public void DeleteMovie()
         {
+            AnsiConsole.Clear(); // Rensar skärmen
+
             // Rensar konsolen innan användaren tar bort en film
             AnsiConsole.Write(
                 new Panel("[bold orange1]=== Ta bort film ===[/]")
-                    .BorderColor(Color.Orange1)
-                    .Expand()
+                    .BorderColor(Color.Pink1)
             );
 
             var movies = movieRepo.GetAllMovies(); // Hämtar alla filmer
@@ -286,8 +307,13 @@ namespace ADONet_MovieRegister.UI
 
             // Skriver ut ett meddelande om att filmen har tagits bort
             AnsiConsole.MarkupLine($"\n[green]Filmen '{movieChoice.Title}' har tagits bort![/]");
-            AnsiConsole.MarkupLine("\n[grey]Tryck på valfri tangent för att återgå till menyn...[/]");
-            Console.ReadKey();
+
+            // Skriver ut ett meddelande om att användaren kan trycka ESC för att gå tillbaka
+            AnsiConsole.MarkupLine("\n[grey]Tryck ESC för att gå tillbaka...[/]");
+            var key = Console.ReadKey(true);
+            if (key.Key == ConsoleKey.Escape)
+                return;
+
         }
     }
 }
