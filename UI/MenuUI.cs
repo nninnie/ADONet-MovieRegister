@@ -28,7 +28,7 @@ namespace ADONet_MovieRegister.UI
                 AnsiConsole.Write(
                     new Panel("[bold hotpink]FILMREGISTER[/]")
                         .Border(BoxBorder.Rounded)
-                        .BorderColor(Color.Yellow)
+                        .BorderColor(Color.Orange3)
                 );
 
                 var choice = AnsiConsole.Prompt(
@@ -85,14 +85,14 @@ namespace ADONet_MovieRegister.UI
 
             // Rensar konsolen innan filmerna skrivs ut
             AnsiConsole.Write(
-                new Panel("[bold orange1]=== Alla filmer ===[/]")
-                    .BorderColor(Color.Pink1)
+                new Panel("[bold hotpink]=== Alla filmer ===[/]")
+                    .BorderColor(Color.Orange1)
             );
 
             // Skapar en ny tabell för att visa filmerna
             var table = new Table()
                 .Border(TableBorder.Rounded)
-                .BorderColor(Color.Orange1)
+                .BorderColor(Color.Orange3)
                 .AddColumn("ID")
                 .AddColumn("Titel")
                 .AddColumn("År")
@@ -123,8 +123,8 @@ namespace ADONet_MovieRegister.UI
             AnsiConsole.Clear(); // Rensar skärmen
 
             AnsiConsole.Write(
-                new Panel("[bold orange1]=== Sök filmer efter genre ===[/]")
-                    .BorderColor(Color.Pink1)
+                new Panel("[bold hotpink]=== Sök filmer efter genre ===[/]")
+                    .BorderColor(Color.Orange1)
             );
 
             var genres = genreRepo.GetAllGenres(); // Hämtar alla genrer från repository
@@ -141,8 +141,8 @@ namespace ADONet_MovieRegister.UI
             AnsiConsole.Clear();
 
             AnsiConsole.Write(
-                new Panel($"[bold orange1]=== Filmer i genren: {genreChoice.GenreName} ===[/]")
-                    .BorderColor(Color.Pink1)
+                new Panel($"[bold hotpink]=== Filmer i genren: {genreChoice.GenreName} ===[/]")
+                    .BorderColor(Color.Orange1)
             );
 
             // Om inga filmer hittades i den valda genren, skriv ut ett meddelande
@@ -155,7 +155,7 @@ namespace ADONet_MovieRegister.UI
             {
                 var table = new Table()
                     .Border(TableBorder.Rounded)
-                    .BorderColor(Color.Orange1)
+                    .BorderColor(Color.Orange3)
                     .AddColumn("ID")
                     .AddColumn("Titel")
                     .AddColumn("År")
@@ -188,8 +188,8 @@ namespace ADONet_MovieRegister.UI
 
             // Skriver ut en panel med rubriken "Lägg till film"
             AnsiConsole.Write(
-                new Panel("[bold orange1]=== Lägg till film ===[/]")
-                    .BorderColor(Color.Pink1)
+                new Panel("[bold hotpink]=== Lägg till film ===[/]")
+                    .BorderColor(Color.Orange1)
                     );
 
             // Frågar användaren om titel och år för den nya filmen
@@ -201,6 +201,12 @@ namespace ADONet_MovieRegister.UI
             }
 
             int year = AnsiConsole.Ask<int>("[cyan]Ange år:[/]"); // Frågar användaren om år för den nya filmen
+
+            if (year <= 0 || year > DateTime.Now.Year) // Kollar om året är negativt eller i framtiden
+            {
+                AnsiConsole.MarkupLine("[red]År får inte vara negativt eller i framtiden.[/]");
+                return;
+            }
 
             var genres = genreRepo.GetAllGenres(); // Hämtar alla genrer från repository
 
@@ -233,8 +239,8 @@ namespace ADONet_MovieRegister.UI
 
             // Rensar konsolen innan användaren uppdaterar en film
             AnsiConsole.Write(
-                new Panel("[bold orange1]=== Uppdatera film ===[/]")
-                    .BorderColor(Color.Pink1)
+                new Panel("[bold hotpink]=== Uppdatera film ===[/]")
+                    .BorderColor(Color.Orange1)
             );
 
             var movies = movieRepo.GetAllMovies(); // Hämtar alla filmer
@@ -249,12 +255,25 @@ namespace ADONet_MovieRegister.UI
 
 
             // Frågar användaren om ny titel och år för den valda filmen, med nuvarande värden som standard
-            string newTitle = AnsiConsole.Ask<string>("[cyan]Ange ny titel:[/]",
+            var newTitle = AnsiConsole.Ask<string>("[cyan]Ange ny titel (Enter för att behålla):[/]",
                 movieChoice.Title);
 
+            if (string.IsNullOrWhiteSpace(newTitle)) // Kollar om titeln är tom eller bara innehåller whitespace
+            {
+                AnsiConsole.MarkupLine("[red]Titel får inte vara tom.[/]");
+                return;
+            }
+
             // Frågar användaren om nytt år för den valda filmen, med nuvarande värde som standard
-            int newYear = AnsiConsole.Ask<int>("[cyan]Ange nytt år:[/]",
-                movieChoice.Year);
+            var newYear = AnsiConsole.Ask<int>("[cyan]Ange nytt år (Enter för att behålla):[/]",
+                movieChoice.Year
+                );
+
+            if (newYear <= 0 || newYear > DateTime.Now.Year) // Kollar om året är negativt eller i framtiden    
+            {
+                AnsiConsole.MarkupLine("[red]År får inte vara negativt eller i framtiden.[/]");
+                return;
+            }
 
             var genres = genreRepo.GetAllGenres(); // Hämtar alla genrer
 
@@ -289,8 +308,8 @@ namespace ADONet_MovieRegister.UI
 
             // Rensar konsolen innan användaren tar bort en film
             AnsiConsole.Write(
-                new Panel("[bold orange1]=== Ta bort film ===[/]")
-                    .BorderColor(Color.Pink1)
+                new Panel("[bold hotpink]=== Ta bort film ===[/]")
+                    .BorderColor(Color.Orange1)
             );
 
             var movies = movieRepo.GetAllMovies(); // Hämtar alla filmer
