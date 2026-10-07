@@ -1,85 +1,172 @@
-# 🎬 Filmregister – ADO.NET Console Application  
-Individuell inlämningsuppgift – Programmering med C# .NET (40 YH‑poäng)  
-Systemutvecklare .NET – Systementor AB
+# 🎬 Filmregister – ADO.NET Console Application
 
-<img src="movieRegister.png">
+En strukturerad C#‑applikation för att hantera ett filmregister med koppling till SQL Server.  
+Projektet demonstrerar klassisk dataåtkomst med **ADO.NET**, tydlig lagerindelning och ett modernt konsol‑UI byggt med Spectre.Console.
 
-## 📌 Syfte
-Detta projekt är en individuell examination där målet är att skapa en C#‑konsolapplikation som kopplar mot en SQL Server‑databas med hjälp av **ADO.NET**.  
-Applikationen hanterar ett enkelt filmregister där filmer och genrer lagras i två relaterade tabeller.
-
-Projektet demonstrerar:
-- databaskoppling med ADO.NET  
-- läsning, sökning, skapande och borttagning av data  
-- parametriserade SQL‑frågor  
-- korrekt hantering av anslutningar  
-- separering av UI och dataåtkomst (Repository‑mönster)
+<img src="movieRegister.png" width="700">
 
 ---
 
-## 🗂️ Funktionalitet
-Applikationen uppfyller samtliga krav för betyget **Godkänt**:
+## 📌 Översikt
 
-### ✔ Visa alla filmer  
-Hämtar alla filmer och visar titel, år och genre.
+Applikationen är en konsollösning där användaren kan:
 
-### ✔ Sök filmer efter genre  
-Användaren väljer en genre och får en lista med alla filmer som tillhör den.
+- Visa alla filmer med tillhörande genre  
+- Söka filmer baserat på genre  
+- Lägga till nya filmer  
+- Uppdatera befintliga filmer  
+- Ta bort filmer  
 
-### ✔ Lägg till film  
-Användaren anger titel, år och väljer en befintlig genre.  
-Validering säkerställer att titel inte är tom och att år är rimligt.
-
-### ✔ Ta bort film  
-Användaren väljer en film ur listan och tar bort den.
-
-### ✔ Parametriserade SQL‑frågor  
-Alla SQL‑kommandon använder `SqlParameter` för att undvika SQL‑injektion.
-
-### ✔ Korrekt hantering av anslutningar  
-`SqlConnection` öppnas och stängs korrekt i repository‑klasserna.
-
-### ✔ Separering av lager  
-- **MenuUI** – användargränssnitt  
-- **MovieRepository** – dataåtkomst för filmer  
-- **GenreRepository** – dataåtkomst för genrer  
-- **Models** – datamodeller
+Data lagras i en SQL Server‑databas med två relaterade tabeller: **Movie** och **Genre**.
 
 ---
 
-## 🛠️ Tekniker och verktyg
-- **C# .NET**  
-- **ADO.NET**  
-- **SQL Server**  
-- **SqlConnection, SqlCommand, SqlDataReader, SqlParameter**  
-- **Repository‑mönster**  
-- **Spectre.Console** (för ett tydligare och mer användarvänligt konsol‑UI)
+## 🛠️ Tekniker & Arkitektur
+
+### **Språk & Ramverk**
+- C# .NET  
+- ADO.NET (SqlConnection, SqlCommand, SqlDataReader, SqlParameter)
+
+### **Databas**
+- SQL Server  
+- Relation mellan tabellerna:  
+  - `Genre` (1) → `Movie` (N)
+
+### **Arkitektur**
+- **Repository‑mönster** för all dataåtkomst  
+- **Separering av UI och logik**  
+- **Modellklasser (POCOs)** för datatransport  
+- **Konsolgränssnitt med Spectre.Console** för tabeller, paneler och tydlig presentation  
+- **Parametriserade SQL‑frågor** för säker datahantering  
+- **Validering och felhantering** i UI‑lagret  
+- **DRY & SOLID‑principer** på grundnivå
 
 ---
 
-## 🗄️ Databasstruktur
+## 📁 Projektstruktur
 
-### Tabell: Genre
-| Kolumn      | Typ        |
-|-------------|------------|
-| GenreId     | int (PK)   |
-| GenreName   | nvarchar   |
+```plaintext
+/Models
+    Movie.cs        → Representerar en film
+    Genre.cs        → Representerar en genre
 
-### Tabell: Movie
-| Kolumn      | Typ        |
-|-------------|------------|
-| MovieId     | int (PK)   |
-| Title       | nvarchar   |
-| Year        | int        |
-| GenreId     | int (FK → Genre.GenreId) |
+/Repository
+    MovieRepository.cs  → SQL-frågor och dataåtkomst för filmer
+    GenreRepository.cs  → SQL-frågor och dataåtkomst för genrer
+/Data
+    DbConfig        → Connection string för databasen
 
-Relation:  
-**En genre kan ha flera filmer. En film tillhör exakt en genre.**
+/UI
+    MenuUI.cs       → Menyer, input, validering, presentation
+
+Program.cs          → Applikationens startpunkt
+
+```
+---
+
+Strukturen följer branschstandard för små .NET‑applikationer med tydlig separation mellan lager.
+
+---
+
+## 🧱 Arkitektur & Kodprinciper
+
+### **Repository‑mönster**
+All databaslogik ligger i repository‑klasserna.  
+UI‑lagret anropar repository och får tillbaka modeller.
+
+### **Separering av UI och logik**
+MenuUI hanterar:
+- menyer  
+- input  
+- validering  
+- felmeddelanden  
+- presentation av data  
+
+UI‑lagret innehåller ingen SQL‑kod.
+
+### **Modellklasser**
+Movie och Genre är enkla POCO‑modeller som representerar databasens tabeller.
+
+### **ADO.NET‑flöde**
+Projektet använder klassiskt ADO.NET:
+- `SqlConnection`  
+- `SqlCommand`  
+- `SqlDataReader`  
+- `SqlParameter`  
+
+Allt implementerat enligt etablerad standard.
+
+---
+
+## ✔️ Validering
+
+Applikationen innehåller grundläggande validering:
+
+- Titel får inte vara tom  
+- Årtal måste vara giltigt  
+- Genre måste väljas  
+- Felaktig input hanteras med tydliga meddelanden  
+- Spectre.Console används för att presentera fel och val på ett tydligt sätt  
+
+---
+
+## ⚠️ Felhantering
+
+- Try/catch runt databasoperationer  
+- Felmeddelanden visas i UI  
+- Programmet fortsätter köra vid fel  
+- Databasanslutningar stängs korrekt även vid undantag  
+
+---
+
+## 🔁 Kodprinciper (DRY & SOLID)
+
+### **DRY – Don’t Repeat Yourself**
+- SQL‑logik ligger i repository  
+- UI‑logik ligger i MenuUI  
+- Modeller återanvänds  
+- Inga duplicerade SQL‑kommandon  
+
+### **SOLID (grundnivå)**
+
+**S – Single Responsibility**  
+Varje klass har ett tydligt ansvar.
+
+**O – Open/Closed**  
+Nya funktioner kan läggas till utan att ändra befintlig kod i UI.
+
+**L – Liskov Substitution**  
+Modellerna är enkla och följer LSP naturligt.
+
+**I – Interface Segregation**  
+Inga onödiga interfaces — korrekt för projektets storlek.
+
+**D – Dependency Inversion**  
+UI beror på repository‑klasser, inte på SQL‑kod direkt.
 
 ---
 
 ## 🔌 Connection String
-Justera connection string i `MovieRepository` och `GenreRepository` så den matchar din lokala SQL Server‑instans:
+
+Justera connection string i repository‑klasserna så den matchar din lokala SQL Server‑instans:
 
 ```csharp
 Server=.;Database=MovieRegisterDB;Trusted_Connection=True;
+```
+
+---
+
+## ▶️ Kör applikationen
+
+1. Skapa databasen MovieRegisterDB i SQL Server
+2. Skapa tabellerna Movie och Genre
+3. Lägg in några testgenrer och filmer
+4. Klona projektet
+5. Kör applikationen i Visual Studio
+
+---
+
+## 👤 Utvecklare
+**Ninnie Dahlström  
+Systemutvecklare .NET
+Stockholm, Sverige
