@@ -2,7 +2,7 @@
 Individuell inlämningsuppgift – Programmering med C# .NET (40 YH‑poäng)  
 Systemutvecklare .NET – Systementor AB
 
-<img src="
+<img src="movieRegister.png">
 
 ## 📌 Syfte
 Detta projekt är en individuell examination där målet är att skapa en C#‑konsolapplikation som kopplar mot en SQL Server‑databas med hjälp av **ADO.NET**.  
