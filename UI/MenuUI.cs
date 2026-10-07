@@ -1,5 +1,4 @@
 ﻿
-using ADONet_MovieRegister.Models;
 using ADONet_MovieRegister.Repository;
 using Spectre.Console;
 using System;
