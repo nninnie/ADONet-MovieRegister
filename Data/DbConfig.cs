@@ -8,6 +8,7 @@ namespace ADONet_MovieRegister.Data
     {
         // Connectionstring för databasen (pekar på MovieRegisterDB)
         public static string ConnectionString =
-            "Server=localhost;Database=MovieRegisterDB;Trusted_Connection=True;";
+      "Server=localhost;Database=MovieRegisterDB;Trusted_Connection=True;Encrypt=True;TrustServerCertificate=True;";
+
     }
 }

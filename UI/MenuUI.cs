@@ -27,9 +27,10 @@ namespace ADONet_MovieRegister.UI
                 Console.WriteLine("1. Visa alla filmer");
                 Console.WriteLine("2. Sök filmer efter genre");
                 Console.WriteLine("3. Lägg till film");
-                Console.WriteLine("4. Ta bort film");
+                Console.WriteLine("4. Uppdatera film");
+                Console.WriteLine("5. Ta bort film");
                 Console.WriteLine("0. Avsluta");
-                Console.WriteLine("Välj ett alternativ: ");
+                Console.WriteLine("\nVälj ett alternativ: ");
 
                 string choice = Console.ReadLine()!; // Användarens val
                 Console.Clear(); // Rensar konsolen för att visa nästa meny eller resultat
@@ -68,6 +69,8 @@ namespace ADONet_MovieRegister.UI
                 // Catch block för att fånga och visa eventuella undantag som uppstår
                 catch (Exception ex)
                 {
+                    Console.ReadKey();
+
                     Console.WriteLine($"Ett fel uppstod: {ex.Message}");
                 }
             }
@@ -77,14 +80,27 @@ namespace ADONet_MovieRegister.UI
         // Metod för att visa alla filmer i databasen
         public void ShowAllMovies()
         {
-            var movies = movieRepo.GetAllMovies(); // Hämtar alla filmer från repository
-
-            Console.WriteLine("=== Alla filmer ===\n");
-
-            foreach (var movie in movies) // Loopar igenom alla filmer och skriver ut deras information
+            try
             {
-                Console.WriteLine($"ID: {movie.MovieId}, Titel: {movie.Title}, År: {movie.Year}, Genre: {movie.GenreName}");
+                var movies = movieRepo.GetAllMovies(); // Hämtar alla filmer från repository
+
+                Console.WriteLine("=== Alla filmer ===\n");
+
+                foreach (var movie in movies) // Loopar igenom alla filmer och skriver ut deras information
+                {
+                    Console.WriteLine($"ID: {movie.MovieId}, Titel: {movie.Title}, År: {movie.Year}, Genre: {movie.GenreName}");
+                }
             }
+
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ett fel uppstod: {ex.Message}");
+
+            }
+                Console.Write("\nTryck på valfri tangent för att återgå till menyn...");
+                Console.ReadKey(); // Väntar på att användaren trycker på en tangent innan menyn visas igen
+            
+            
         }
 
         // Metod för att visa alla genrer i databasen
