@@ -1,6 +1,7 @@
 ﻿
 using ADONet_MovieRegister.Models;
 using ADONet_MovieRegister.Repository;
+using Spectre.Console;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -22,56 +23,54 @@ namespace ADONet_MovieRegister.UI
             // Huvudloop för menyn
             while (running)
             {
-                Console.Clear();
-                Console.WriteLine("=== Filmregister ===\n");
-                Console.WriteLine("1. Visa alla filmer");
-                Console.WriteLine("2. Sök filmer efter genre");
-                Console.WriteLine("3. Lägg till film");
-                Console.WriteLine("4. Uppdatera film");
-                Console.WriteLine("5. Ta bort film");
-                Console.WriteLine("0. Avsluta");
-                Console.WriteLine("\nVälj ett menyval: ");
+                AnsiConsole.Clear();
 
-                string choice = Console.ReadLine()!; // Användarens val
-                Console.Clear(); // Rensar konsolen för att visa nästa meny eller resultat
+                AnsiConsole.Write(
+                    new Panel("[bold orange1]FILMREGISTER[/]")
+                        .BorderColor(Color.Orange1)
+                        .Expand()
+                );
 
-                // Try-catch block för att hantera eventuella fel som kan uppstå vid användarens val
-                try
+                var choice = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title("[cyan]Välj ett menyval[/]")
+                        .AddChoices(
+                            "Visa alla filmer",
+                            "Sök filmer efter genre",
+                            "Lägg till film",
+                            "Uppdatera film",
+                            "Ta bort film",
+                            "Avsluta"
+                        )
+                );
+
+
+                // Switch-sats för att hantera användarens val
+                switch (choice)
                 {
-                    // Switch-sats för att hantera användarens val
-                    switch (choice)
-                    {
-                        case "1":
-                            ShowAllMovies(); // Anropar metoden för att visa alla filmer
-                            break;
+                    case "Visa alla filmer":
+                        ShowAllMovies();
+                        break;
 
-                        case "2":
-                            ShowAllGenres(); // Anropar metoden för att visa alla genrer
-                            break;
+                    case "Sök filmer efter genre":
+                        ShowAllGenres();
+                        break;
 
-                        case "3":
-                            AddMovie(); // Anropar metoden för att lägga till en ny film
-                            break;
+                    case "Lägg till film":
+                        AddMovie();
+                        break;
 
-                        case "4":
-                            UpdateMovie(); // Anropar metoden för att uppdatera en film
-                            break;
+                    case "Uppdatera film":
+                        UpdateMovie();
+                        break;
 
-                        case "5":
-                            DeleteMovie(); // Anropar metoden för att ta bort en film
-                            break;
+                    case "Ta bort film":
+                        DeleteMovie();
+                        break;
 
-                        case "0":
-                            running = false;
-                            break;
-                    }
-                }
-                // Catch block för att fånga och visa eventuella undantag som uppstår
-                catch (Exception ex)
-                {
-                    Console.ReadKey();
-
-                    Console.WriteLine($"Ett fel uppstod: {ex.Message}");
+                    case "Avsluta":
+                        running = false;
+                        break;
                 }
             }
         }
@@ -80,123 +79,136 @@ namespace ADONet_MovieRegister.UI
         // ==== VISA ALLA FILMER ====
         public void ShowAllMovies()
         {
-            // Try-catch block för att hantera eventuella fel som kan uppstå vid hämtning av filmer
-            try
+            // Hämtar alla filmer från repository
+            var movies = movieRepo.GetAllMovies();
+
+            // Rensar konsolen innan filmerna skrivs ut
+            AnsiConsole.Write(
+                new Panel("[bold orange1]=== Alla filmer ===[/]")
+                    .BorderColor(Color.Orange1)
+                    .Expand()
+            );
+
+            // Skapar en ny tabell för att visa filmerna
+            var table = new Table()
+                .Border(TableBorder.Rounded)
+                .BorderColor(Color.Orange1)
+                .AddColumn("ID")
+                .AddColumn("Titel")
+                .AddColumn("År")
+                .AddColumn("Genre");
+
+            // Loopar igenom alla filmer och lägger till dem i tabellen
+            foreach (var movie in movies)
             {
-                var movies = movieRepo.GetAllMovies(); // Hämtar alla filmer från repository
-
-                Console.WriteLine("=== Alla filmer ===\n");
-
-                foreach (var movie in movies) // Loopar igenom alla filmer och skriver ut deras information
-                {
-                    Console.WriteLine($"ID: {movie.MovieId}, Titel: {movie.Title}, År: {movie.Year}, Genre: {movie.GenreName}");
-                }
+                table.AddRow(movie.MovieId.ToString(), movie.Title, movie.Year.ToString(), movie.GenreName);
             }
 
-            // Catch block för att fånga och visa eventuella undantag som uppstår vid hämtning av filmer
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Ett fel uppstod: {ex.Message}");
+            // Skriver ut tabellen med filmerna till konsolen
+            AnsiConsole.Write(table);
 
-            }
-                Console.Write("\nTryck på valfri tangent för att återgå till menyn...");
-                Console.ReadKey(); // Väntar på att användaren trycker på en tangent innan menyn visas igen
-            
-            
+            // Skriver ut ett meddelande om att användaren kan trycka på valfri tangent för att återgå
+            AnsiConsole.MarkupLine("\n[grey]Tryck på valfri tangent för att återgå...[/]");
+            Console.ReadKey();
         }
+
 
         // ==== VISA FILM EFTER GENRE ====
         public void ShowAllGenres()
         {
-            Console.WriteLine("=== Sök film efter genre ===\n");
+            AnsiConsole.Write(
+                new Panel("[bold orange1]=== Sök filmer efter genre ===[/]")
+                    .BorderColor(Color.Orange1)
+                    .Expand()
+            );
 
-            var allGenres = genreRepo.GetAllGenres();
+            var genres = genreRepo.GetAllGenres(); // Hämtar alla genrer från repository
 
-            Console.WriteLine("Tillgängliga genrer:\n");
+            var genreChoice = AnsiConsole.Prompt(
+                new SelectionPrompt<Genre>()
+                    .Title("[cyan]Välj en genre:[/]")
+                    .AddChoices(genres) // Lägger till alla genrer som val
+            );
 
-            foreach (var genre in allGenres)
-            {
-                Console.WriteLine($"{genre.GenreId}. {genre.GenreName}");
-            }
+            var movies = movieRepo.GetMoviesByGenre(genreChoice.GenreId); // Hämtar alla filmer som tillhör den valda genren
 
-            Console.WriteLine("\nAnge genre-ID: ");
-            if (!int.TryParse(Console.ReadLine(), out int genreId))
-            {
-                Console.WriteLine("Ogiltigt ID.");
-                return;
-            }
+            AnsiConsole.Clear();
 
-            // Hämtar alla filmer som tillhör den valda genren
-            var movies = movieRepo.GetMoviesByGenre(genreId); 
+            AnsiConsole.Write(
+                new Panel($"[bold orange1]=== Filmer i genren: {genreChoice.GenreName} ===[/]")
+                    .BorderColor(Color.Orange1)
+                    .Expand()
+            );
 
-            // Hittar den valda genren baserat på ID
-            var selectedGenre = allGenres.Find(g => g.GenreId == genreId); 
-
-            Console.Clear(); // Rensar konsolen innan genrerna skrivs ut
-
-            Console.WriteLine($"=== Filmer i {selectedGenre?.GenreName} ===\n");
-
-            // Om inga filmer hittas för den valda genren, skriv ut ett meddelande
+            // Om inga filmer hittades i den valda genren, skriv ut ett meddelande
             if (movies.Count == 0)
             {
-                Console.WriteLine("Inga filmer hittades för denna genre.");
+                AnsiConsole.MarkupLine("\n[grey]Inga filmer hittades i denna genre.[/]");
             }
+            // Annars, skapa en tabell och skriv ut alla filmer i den valda genren
             else
             {
-                foreach (var movie in movies) // Loopar igenom alla filmer och skriver ut deras information
+                var table = new Table()
+                    .Border(TableBorder.Rounded)
+                    .BorderColor(Color.Orange1)
+                    .AddColumn("ID")
+                    .AddColumn("Titel")
+                    .AddColumn("År");
+
+                // Loopar igenom alla filmer i den valda genren och lägger till dem i tabellen
+                foreach (var movie in movies)
                 {
-                    Console.WriteLine($"ID: {movie.MovieId}, Titel: {movie.Title}, År: {movie.Year}, Genre: {movie.GenreName}");
+                    table.AddRow(movie.MovieId.ToString(), movie.Title, movie.Year.ToString(), movie.GenreName);
                 }
+
+                AnsiConsole.Write(table);
             }
 
-            Console.WriteLine("\nTryck på valfri tangent för att återgå till menyn...");
+            // Skriver ut ett meddelande om att användaren kan trycka på valfri tangent för att återgå
+            AnsiConsole.MarkupLine("\n[grey]Tryck på valfri tangent för att återgå...[/]");
             Console.ReadKey();
+
         }
 
 
         // ==== LÄGG TILL FILM ====
         public void AddMovie()
         {
-            Console.WriteLine("=== Lägg till film ===\n");
+            // Rensar konsolen innan användaren lägger till en ny film
+            AnsiConsole.Clear();
 
-            // Titel för filmen, kontrollerar om den är tom eller bara whitespace
-            Console.WriteLine("Ange titel: ");
-            string title = Console.ReadLine()!;
+            // Skriver ut en panel med rubriken "Lägg till film"
+            AnsiConsole.Write(
+                new Panel("[bold orange1]=== Lägg till film ===[/]")
+                    .BorderColor(Color.Orange1)
+                    .Expand()
+                    );
 
-            if (string.IsNullOrWhiteSpace(title))
+            // Frågar användaren om titel och år för den nya filmen
+            string title = AnsiConsole.Ask<string>("[cyan]Ange titel:[/]");
+            if (string.IsNullOrWhiteSpace(title)) // Kollar om titeln är tom eller bara innehåller whitespace
             {
-                Console.WriteLine("Titeln får inte vara tom. Försök igen.");
-                return; // Avslutar metoden om titeln är tom
-            }
-
-            // Årtal för filmen, kontrollerar om det är ett giltigt heltal
-            Console.WriteLine("Ange årtal: ");
-            if (!int.TryParse(Console.ReadLine(), out int year))
-            {
-                Console.WriteLine("Ogiltigt årtal. Försök igen.");
+                AnsiConsole.MarkupLine("[red]Titel får inte vara tom.[/]");
                 return;
             }
 
-            // Genrelista för att visa användaren vilka genrer som finns tillgängliga
+            int year = AnsiConsole.Ask<int>("[cyan]Ange år:[/]"); // Frågar användaren om år för den nya filmen
+
             var genres = genreRepo.GetAllGenres(); // Hämtar alla genrer från repository
-            Console.WriteLine("\nAnge genre: ");
 
-            foreach (var genre in genres) // Loopar igenom alla genrer och skriver ut deras information
-            {
-                Console.WriteLine($"ID: {genre.GenreId}, Namn: {genre.GenreName}");
-            }
+            // Visar en lista med genrer och låta användaren välja en
+            var genreChoice = AnsiConsole.Prompt(
+                new SelectionPrompt<Genre>()
+                    .Title("[cyan]Välj en genre:[/]")
+                    .UseConverter(g => $"{g.GenreId}. {g.GenreName}")
+                    .AddChoices(genres)
+            );
 
-            Console.WriteLine("Ange genre-ID: ");
-            if (!int.TryParse(Console.ReadLine(), out int genreId) || !genres.Exists(g => g.GenreId == genreId)) // Kontrollera om genre-ID är giltigt
-            {
-                Console.WriteLine("Ogiltigt genre-ID. Försök igen.");
-                return; // Avslutar metoden om genre-ID är ogiltigt
-            }
+            movieRepo.AddMovie(title, year, genreChoice.GenreId); // Lägger till filmen i repository
 
-            movieRepo.AddMovie(title, year, genreId); // Lägger till filmen i repository
+            AnsiConsole.MarkupLine($"\n[green]Filmen '{title}' har lagts till![/]"); // Skriver ut ett meddelande om att filmen har lagts till
 
-            Console.WriteLine($"\nFilmen '{title}' ({year}) har lagts till!");
-            Console.WriteLine("\nTryck på valfri tangent för att återgå till menyn...");
+            AnsiConsole.MarkupLine("\n[grey]Tryck på valfri tangent för att återgå till menyn...[/]");
             Console.ReadKey();
         }
 
@@ -204,104 +216,77 @@ namespace ADONet_MovieRegister.UI
         // ==== UPPDATERA FILM ====
         public void UpdateMovie()
         {
-            Console.WriteLine("=== Uppdatera film ===\n");
+            // Rensar konsolen innan användaren uppdaterar en film
+            AnsiConsole.Write(
+                new Panel("[bold orange1]=== Uppdatera film ===[/]")
+                    .BorderColor(Color.Orange1)
+                    .Expand()
+            );
 
             var movies = movieRepo.GetAllMovies(); // Hämtar alla filmer
 
             // Loopar igenom alla filmer och skriver ut deras information
-            foreach (var movie in movies)
-            {
-                Console.WriteLine($"ID: {movie.MovieId}, Titel: {movie.Title}, År: {movie.Year}, Genre: {movie.GenreName}");
-            }
+            var movieChoice = AnsiConsole.Prompt(
+                new SelectionPrompt<Movie>()
+                    .Title("[cyan]Välj en film att uppdatera:[/]")
+                    .UseConverter(m => $"{m.MovieId}. {m.Title} ({m.Year}) - {m.GenreName}")
+                    .AddChoices(movies)
+            );
 
-            // Frågar användaren om ID för filmen som ska uppdateras
-            Console.WriteLine("\nAnge ID för filmen du vill uppdatera:");
-            if (!int.TryParse(Console.ReadLine(), out int movieId))
-            {
-                Console.WriteLine("Ogiltigt ID.");
-                return;
-            }
 
-            // Hittar filmen som ska uppdateras baserat på ID
-            var movieToUpdate = movies.FirstOrDefault(m => m.MovieId == movieId);
+            // Frågar användaren om ny titel och år för den valda filmen, med nuvarande värden som standard
+            string newTitle = AnsiConsole.Ask<string>("[cyan]Ange ny titel:[/]",
+                movieChoice.Title);
 
-            // Om filmen inte hittas, skriv ut ett meddelande och avsluta metoden
-            if (movieToUpdate == null)
-            {
-                Console.WriteLine("Filmen hittades inte.");
-                return;
-            }
-            // Frågar användaren om ny titel, årtal och genre-ID för filmen som ska uppdateras
-            Console.WriteLine($"Ny titel ({movieToUpdate.Title}):");
-            string newTitle = Console.ReadLine()!;
-            if (string.IsNullOrWhiteSpace(newTitle))
-                newTitle = movieToUpdate.Title;
+            // Frågar användaren om nytt år för den valda filmen, med nuvarande värde som standard
+            int newYear = AnsiConsole.Ask<int>("[cyan]Ange nytt år:[/]",
+                movieChoice.Year);
 
-            Console.WriteLine($"Nytt årtal ({movieToUpdate.Year}):");
-            string yearInput = Console.ReadLine()!;
-            int newYear = movieToUpdate.Year;
-            if (!string.IsNullOrWhiteSpace(yearInput) && int.TryParse(yearInput, out int parsedYear))
-                newYear = parsedYear;
+            var genres = genreRepo.GetAllGenres(); // Hämtar alla genrer
 
-            // Hämtar alla genrer för att visa användaren vilka genrer som finns tillgängliga
-            var genres = genreRepo.GetAllGenres();
-            Console.WriteLine("\nTillgängliga genrer:");
-            foreach (var g in genres)
-            {
-                Console.WriteLine($"{g.GenreId}. {g.GenreName}");
-            }
+            // Visar en lista med genrer och låta användaren välja en ny genre för filmen
+            var genreChoice = AnsiConsole.Prompt(
+                new SelectionPrompt<Genre>()
+                    .Title("[cyan]Välj en ny genre:[/]")
+                    .UseConverter(g => $"{g.GenreId}. {g.GenreName}")
+                    .AddChoices(genres)
+            );
 
-            // Frågar användaren om nytt genre-ID för filmen som ska uppdateras
-            Console.WriteLine($"Nytt genre-ID ({movieToUpdate.GenreId}):");
-            string genreInput = Console.ReadLine()!;
-            int newGenreId = movieToUpdate.GenreId;
-            if (!string.IsNullOrWhiteSpace(genreInput) && int.TryParse(genreInput, out int parsedGenreId))
-                newGenreId = parsedGenreId;
+            movieRepo.UpdateMovie(movieChoice.MovieId, newTitle, newYear, genreChoice.GenreId); // Uppdaterar filmen i repository
 
-            // Uppdaterar filmen i repository med de nya värdena
-            movieRepo.UpdateMovie(movieId, newTitle, newYear, newGenreId);
-
-            Console.WriteLine("\nFilmen har uppdaterats!");
-
-            Console.WriteLine("\nTryck på valfri tangent för att återgå till menyn...");
+            // Skriver ut ett meddelande om att filmen har uppdaterats
+            AnsiConsole.MarkupLine("\n[green]Filmen har uppdaterats![/]");
+            AnsiConsole.MarkupLine("\n[grey]Tryck på valfri tangent för att återgå till menyn...[/]");
             Console.ReadKey();
+
         }
 
 
         // ==== TA BORT FILM ====
         public void DeleteMovie()
         {
-            Console.WriteLine("=== Ta bort film ===\n");
+            // Rensar konsolen innan användaren tar bort en film
+            AnsiConsole.Write(
+                new Panel("[bold orange1]=== Ta bort film ===[/]")
+                    .BorderColor(Color.Orange1)
+                    .Expand()
+            );
 
             var movies = movieRepo.GetAllMovies(); // Hämtar alla filmer
 
-            // Loopar igenom alla filmer och skriver ut deras information
-            foreach (var movie in movies)
-            {
-                Console.WriteLine($"ID: {movie.MovieId}, Titel: {movie.Title}, År: {movie.Year}, Genre: {movie.GenreName}");
-            }
+            // Visar en lista med filmer och låter användaren välja en film att ta bort
+            var movieChoice = AnsiConsole.Prompt(
+                new SelectionPrompt<Movie>()
+                    .Title("[cyan]Välj en film att ta bort:[/]")
+                    .UseConverter(m => $"{m.MovieId}. {m.Title} ({m.Year}) - {m.GenreName}")
+                    .AddChoices(movies)
+            );
 
-            // Frågar användaren om ID för filmen som ska tas bort
-            Console.WriteLine("\nAnge ID för filmen du vill ta bort:");
-            if (!int.TryParse(Console.ReadLine(), out int movieId))
-            {
-                Console.WriteLine("Ogiltigt ID.");
-                return;
-            }
+            movieRepo.DeleteMovie(movieChoice.MovieId); // Tar bort filmen från repository
 
-            // Hittar filmen som ska tas bort baserat på ID
-            var movieToDelete = movies.FirstOrDefault(m => m.MovieId == movieId);
-            if (movieToDelete == null)
-            {
-                Console.WriteLine("Filmen hittades inte.");
-                return;
-            }
-
-            // Tar bort filmen från repository
-            movieRepo.DeleteMovie(movieId);
-
-            Console.WriteLine($"\nFilmen '{movieToDelete.Title}' har tagits bort!");
-            Console.WriteLine("\nTryck på valfri tangent för att återgå till menyn...");
+            // Skriver ut ett meddelande om att filmen har tagits bort
+            AnsiConsole.MarkupLine($"\n[green]Filmen '{movieChoice.Title}' har tagits bort![/]");
+            AnsiConsole.MarkupLine("\n[grey]Tryck på valfri tangent för att återgå till menyn...[/]");
             Console.ReadKey();
         }
     }
