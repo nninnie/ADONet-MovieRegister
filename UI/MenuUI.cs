@@ -1,4 +1,5 @@
-﻿using ADONet_MovieRegister.Repository;
+﻿
+using ADONet_MovieRegister.Repository;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -39,15 +40,12 @@ namespace ADONet_MovieRegister.UI
                     switch (choice)
                     {
                         case "1":
-                            ShowAllMovies();
                             break;
 
                         case "2":
-                            ShowAllGenres();
                             break;
 
                         case "3":
-                            AddMovie();
                             break;
 
                         case "4":
@@ -61,27 +59,44 @@ namespace ADONet_MovieRegister.UI
                 // Catch block för att fånga och visa eventuella undantag som uppstår
                 catch (Exception ex)
                 {
+                    Console.ReadKey();
+
                     Console.WriteLine($"Ett fel uppstod: {ex.Message}");
                 }
             }
         }
+
+
+        // Metod för att visa alla filmer i databasen
         public void ShowAllMovies()
         {
-            var movies = movieRepo.GetAllMovies(); // Hämtar alla filmer från repository
-
-            Console.WriteLine("=== Alla filmer ===\n");
-
-            foreach (var movie in movies) // Loopar igenom alla filmer och skriver ut deras information
+            try
             {
-                Console.WriteLine($"ID: {movie.MovieId}, Titel: {movie.Title}, År: {movie.Year}, Genre: {movie.GenreName}");
+                var movies = movieRepo.GetAllMovies(); // Hämtar alla filmer från repository
+
+                Console.WriteLine("=== Alla filmer ===\n");
+
+                foreach (var movie in movies) // Loopar igenom alla filmer och skriver ut deras information
+                {
+                    Console.WriteLine($"ID: {movie.MovieId}, Titel: {movie.Title}, År: {movie.Year}, Genre: {movie.GenreName}");
+                }
             }
+
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ett fel uppstod: {ex.Message}");
+
+            }
+                Console.Write("\nTryck på valfri tangent för att återgå till menyn...");
+                Console.ReadKey(); // Väntar på att användaren trycker på en tangent innan menyn visas igen
+            
+            
         }
 
+        // Metod för att visa alla genrer i databasen
         public void ShowAllGenres()
         {
-            Console.WriteLine("=== Sök filmer efter genre ===\n");
-
-            Console.WriteLine("Angge genre: ");
+            Console.WriteLine("Sök film efter genre: ");
             string genreName = Console.ReadLine()!; // Tar emot användarens input för genre
 
             var genres = genreRepo.GetAllGenres(); // Hämtar alla genrer från repository
@@ -96,7 +111,8 @@ namespace ADONet_MovieRegister.UI
             }
         }
 
-        private void AddMovie()
+        // Metod för att lägga till en ny film i databasen
+        public void AddMovie()
         {
             Console.WriteLine("=== Lägg till film ===\n");
 
@@ -137,6 +153,98 @@ namespace ADONet_MovieRegister.UI
             movieRepo.AddMovie(title, year, genreId); // Lägger till filmen i repository
 
             Console.WriteLine($"\nFilmen '{title}' ({year}) har lagts till!");
+
+
         }
+
+
+        // Metod för att uppdatera en film i databasen
+        public void UpdateMovie()
+        {
+            Console.WriteLine("=== Uppdatera film ===\n");
+
+            var movies = movieRepo.GetAllMovies(); // Hämtar alla filmer
+
+            Console.Clear();
+            Console.WriteLine("=== Tillgängliga filmer ===");
+            foreach (var movie in movies)
+            {
+                Console.WriteLine($"ID: {movie.MovieId}, Titel: {movie.Title}, År: {movie.Year}, Genre: {movie.GenreName}");
+            }
+
+            Console.WriteLine("\nAnge ID för filmen du vill uppdatera:");
+            if (!int.TryParse(Console.ReadLine(), out int movieId))
+            {
+                Console.WriteLine("Ogiltigt ID.");
+                return;
+            }
+
+            var movieToUpdate = movies.FirstOrDefault(m => m.MovieId == movieId);
+
+            if (movieToUpdate == null)
+            {
+                Console.WriteLine("Filmen hittades inte.");
+                return;
+            }
+
+            Console.WriteLine($"Ny titel ({movieToUpdate.Title}):");
+            string newTitle = Console.ReadLine()!;
+            if (string.IsNullOrWhiteSpace(newTitle))
+                newTitle = movieToUpdate.Title;
+
+            Console.WriteLine($"Nytt årtal ({movieToUpdate.Year}):");
+            string yearInput = Console.ReadLine()!;
+            int newYear = movieToUpdate.Year;
+            if (!string.IsNullOrWhiteSpace(yearInput) && int.TryParse(yearInput, out int parsedYear))
+                newYear = parsedYear;
+
+            var genres = genreRepo.GetAllGenres();
+            Console.WriteLine("\nTillgängliga genrer:");
+            foreach (var g in genres)
+            {
+                Console.WriteLine($"{g.GenreId}. {g.GenreName}");
+            }
+
+            Console.WriteLine($"Nytt genre-ID ({movieToUpdate.GenreId}):");
+            string genreInput = Console.ReadLine()!;
+            int newGenreId = movieToUpdate.GenreId;
+            if (!string.IsNullOrWhiteSpace(genreInput) && int.TryParse(genreInput, out int parsedGenreId))
+                newGenreId = parsedGenreId;
+
+            movieRepo.UpdateMovie(movieId, newTitle, newYear, newGenreId);
+
+            Console.WriteLine("\nFilmen har uppdaterats!");
+        }
+
+
+        // Metod för att ta bort en film från databasen
+        public void DeleteMovie()
+        {
+            Console.WriteLine("=== Ta bort film ===\n");
+            var movies = movieRepo.GetAllMovies(); // Hämtar alla filmer
+            Console.Clear();
+            Console.WriteLine("=== Tillgängliga filmer ===");
+            foreach (var movie in movies)
+            {
+                Console.WriteLine($"ID: {movie.MovieId}, Titel: {movie.Title}, År: {movie.Year}, Genre: {movie.GenreName}");
+            }
+            Console.WriteLine("\nAnge ID för filmen du vill ta bort:");
+            if (!int.TryParse(Console.ReadLine(), out int movieId))
+            {
+                Console.WriteLine("Ogiltigt ID.");
+                return;
+            }
+            var movieToDelete = movies.FirstOrDefault(m => m.MovieId == movieId);
+            if (movieToDelete == null)
+            {
+                Console.WriteLine("Filmen hittades inte.");
+                return;
+            }
+            movieRepo.DeleteMovie(movieId);
+            Console.WriteLine($"\nFilmen '{movieToDelete.Title}' har tagits bort!");
+        }
+
+
+
     }
 }

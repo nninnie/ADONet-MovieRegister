@@ -23,7 +23,7 @@ namespace ADONet_MovieRegister.Repository
 
                 // SQL-fråga för att hämta alla genrer
                 var sql = @"SELECT g.GenreId, g.GenreName 
-                            FROM Genres g";
+                            FROM Genre g";
 
                 // Använder SqlCommand för att exekvera SQL-frågan
                 using (var command = new SqlCommand(sql, connection))
