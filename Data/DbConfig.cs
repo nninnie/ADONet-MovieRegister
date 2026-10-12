@@ -4,11 +4,11 @@ using System.Text;
 
 namespace ADONet_MovieRegister.Data
 {
+    // Håller databasens connection string samlad på ett ställe för enkel åtkomst och ändring
     internal class DbConfig
     {
-        // Connectionstring för databasen (pekar på MovieRegisterDB)
         public static string ConnectionString =
-      "Server=localhost;Database=MovieRegisterDB;Trusted_Connection=True;Encrypt=True;TrustServerCertificate=True;";
-
+          "Server=localhost;Database=MovieRegisterDB;Trusted_Connection=True;Encrypt=True;TrustServerCertificate=True;";
     }
+
 }

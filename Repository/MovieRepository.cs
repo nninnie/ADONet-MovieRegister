@@ -7,35 +7,75 @@ using System.Text;
 
 namespace ADONet_MovieRegister.Repository
 {
+    // Hanterar all databaslogik för filmer och separerar dataåtkomst från UI
     public class MovieRepository
     {
-        // Hämtar alla filmer från databasen och returnerar dem som Movie-objekt
+        // Hämtar alla filmer med tillhörande genre för att visas i UI
         public List<Movie> GetAllMovies()
         {
-            // Lista som fylls med filmer
             var movies = new List<Movie>();
 
             try
             {
-                // Skapar en databasanslutning med connection string från DbConfig
+                // Använder SqlConnection för att ansluta till databasen med connection string från DbConfig
                 using (var connection = new SqlConnection(DbConfig.ConnectionString))
                 {
-                    connection.Open(); // Öppnar databasanslutningen
+                    connection.Open();
 
-                    // SQL-fråga: hämta film + genre via JOIN
+                    // SQL-fråga som hämtar alla filmer och deras genrer genom en INNER JOIN mellan Movie och Genre-tabellerna
                     var sql = @"SELECT m.MovieId, m.Title, m.Year, g.GenreId, g.GenreName
                                 FROM Movie m
                                 INNER JOIN Genre g ON m.GenreId = g.GenreId";
 
-                    // Skapar SQL-kommandot som ska köras
+                    using (var command = new SqlCommand(sql, connection))
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            movies.Add(new Movie
+                            {
+                                MovieId = reader.GetInt32(0),
+                                Title = reader.GetString(1),
+                                Year = reader.GetInt32(2),
+                                GenreId = reader.GetInt32(3),
+                                GenreName = reader.GetString(4)
+                            });
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Ett fel uppstod när filmer hämtades från databasen.", ex);
+            }
+
+            return movies;
+        }
+
+        // Hämtar filmer som matchar en viss genre för filtrering i UI
+        public List<Movie> GetMoviesByGenre(int genreId)
+        {
+            var movies = new List<Movie>();
+
+            try
+            {
+                using (var connection = new SqlConnection(DbConfig.ConnectionString))
+                {
+                    connection.Open();
+
+                    var sql = @"SELECT m.MovieId, m.Title, m.Year, g.GenreId, g.GenreName
+                                FROM Movie m
+                                INNER JOIN Genre g ON m.GenreId = g.GenreId
+                                WHERE g.GenreId = @GenreId";
+
                     using (var command = new SqlCommand(sql, connection))
                     {
-                        // Läser resultatet rad för rad
+                        command.Parameters.AddWithValue("@GenreId", genreId);
+
                         using (var reader = command.ExecuteReader())
                         {
-                            while (reader.Read()) // Loopar igenom alla rader
+                            while (reader.Read())
                             {
-                                // Skapar ett Movie-objekt från aktuell rad och lägger till det i listan
                                 movies.Add(new Movie
                                 {
                                     MovieId = reader.GetInt32(0),
@@ -51,80 +91,23 @@ namespace ADONet_MovieRegister.Repository
             }
             catch (Exception ex)
             {
-                throw new Exception("Ett fel uppstod när filmer hämtades från databasen.", ex);
-            }
-
-            return movies; // Returnerar alla filmer
-        }
-
-
-
-        // Hämtar alla filmer som tillhör en viss genre
-        public List<Movie> GetMoviesByGenre(int genreId)
-        {
-            var movies = new List<Movie>(); // Lista som fylls med filmer
-
-            try
-            {
-                using (var connection = new SqlConnection(DbConfig.ConnectionString)) // Skapar en databasanslutning
-                {
-                    connection.Open(); // Öppnar databasanslutningen
-
-                    // SQL-fråga: hämta film + genre via JOIN där GenreId matchar
-                    var sql = @"SELECT m.MovieId, m.Title, m.Year, g.GenreId, g.GenreName
-                                FROM Movie m
-                                INNER JOIN Genre g ON m.GenreId = g.GenreId
-                                WHERE g.GenreId = @GenreId";
-
-                    // Skapar SQL-kommandot som ska köras
-                    using (var command = new SqlCommand(sql, connection))
-                    {
-                        command.Parameters.AddWithValue("@GenreId", genreId); // Lägger till parameter för GenreId
-
-                        using (var reader = command.ExecuteReader()) // Läser resultatet rad för rad
-                        {
-                            // Loopar igenom alla rader
-                            while (reader.Read())
-                            {
-                                // Skapar ett Movie-objekt från aktuell rad
-                                var movie = new Movie
-                                {
-                                    MovieId = reader.GetInt32(0),
-                                    Title = reader.GetString(1),
-                                    Year = reader.GetInt32(2),
-                                    GenreId = reader.GetInt32(3),
-                                    GenreName = reader.GetString(4)
-                                };
-                                movies.Add(movie); // Lägger till filmen i listan
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
                 throw new Exception("Ett fel uppstod när filmer hämtades baserat på genre.", ex);
             }
 
-            return movies; // Returnerar alla filmer som matchar genren
+            return movies;
         }
 
-
-
-        // Lägger till en ny film i databasen
+        // Lägger till en ny film i databasen baserat på användarens input
         public void AddMovie(string title, int year, int genreId)
         {
             try
             {
-                // Skapar en databasanslutning med connection string från DbConfig
                 using (var connection = new SqlConnection(DbConfig.ConnectionString))
                 {
-                    connection.Open(); // Öppnar databasanslutningen
+                    connection.Open();
 
-                // SQL - fråga: lägger till en ny film i Movies - tabellen
-                var sql = @"INSERT INTO Movie (Title, Year, GenreId) VALUES (@Title, @Year, @GenreId)";
+                    var sql = @"INSERT INTO Movie (Title, Year, GenreId) VALUES (@Title, @Year, @GenreId)";
 
-                    // Skapar SQL-kommandot som ska köras
                     using (var command = new SqlCommand(sql, connection))
                     {
                         command.Parameters.AddWithValue("@Title", title);
@@ -140,22 +123,17 @@ namespace ADONet_MovieRegister.Repository
             }
         }
 
-
-
-        // Uppdaterar en befintlig film i databasen
+        // Uppdaterar en befintlig film med nya värden från UI
         public void UpdateMovie(int movieId, string title, int year, int genreId)
         {
             try
             {
-                // Skapar en databasanslutning med connection string från DbConfig
                 using (var connection = new SqlConnection(DbConfig.ConnectionString))
                 {
-                    connection.Open(); // Öppnar databasanslutningen
+                    connection.Open();
 
-                // SQL - fråga: uppdaterar en film i Movies - tabellen
-                var sql = @"UPDATE Movie SET Title = @Title, Year = @Year, GenreId = @GenreId WHERE MovieId = @MovieId";
+                    var sql = @"UPDATE Movie SET Title = @Title, Year = @Year, GenreId = @GenreId WHERE MovieId = @MovieId";
 
-                    // Skapar SQL-kommandot som ska köras
                     using (var command = new SqlCommand(sql, connection))
                     {
                         command.Parameters.AddWithValue("@Title", title);
@@ -172,22 +150,17 @@ namespace ADONet_MovieRegister.Repository
             }
         }
 
-
-
-        // Tar bort en film från databasen baserat på MovieId
+        // Tar bort en film baserat på ID när användaren bekräftar borttagning
         public void DeleteMovie(int movieId)
         {
             try
             {
-                // Skapar en databasanslutning med connection string från DbConfig
                 using (var connection = new SqlConnection(DbConfig.ConnectionString))
                 {
-                    connection.Open(); // Öppnar databasanslutningen
+                    connection.Open();
 
-                // SQL - fråga: tar bort en film från Movies - tabellen baserat på MovieId
-                var sql = @"DELETE FROM Movie WHERE MovieId = @MovieId";
+                    var sql = @"DELETE FROM Movie WHERE MovieId = @MovieId";
 
-                    // Skapar SQL-kommandot som ska köras
                     using (var command = new SqlCommand(sql, connection))
                     {
                         command.Parameters.AddWithValue("@MovieId", movieId);

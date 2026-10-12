@@ -8,55 +8,48 @@ using System.Text;
 
 namespace ADONet_MovieRegister.Repository
 {
+    // Repository som hanterar all databaslogik för genrer.
+    // Syftet är att separera dataåtkomst från UI och ge en ren struktur.
     public class GenreRepository
     {
-        // Hämtar alla genrer från databasen och returnerar dem som Genre-objekt
+        // Hämtar alla genrer från databasen. Används för att visa valbara genrer i UI.
         public List<Genre> GetAllGenres()
         {
-            // Skapar en lista för att lagra genrerna
             var genres = new List<Genre>();
 
             try
             {
-                // Använder SqlConnection för att ansluta till databasen
+                // Skapar en anslutning till databasen med hjälp av anslutningssträngen från DbConfig.
                 using (var connection = new SqlConnection(DbConfig.ConnectionString))
                 {
-                    connection.Open(); // Öppnar anslutningen till databasen
+                    connection.Open();
 
-                    // SQL-fråga för att hämta alla genrer
+                    // SQL-fråga för att hämta alla genrer från Genre-tabellen.
                     var sql = @"SELECT g.GenreId, g.GenreName 
                                 FROM Genre g";
 
-                    // Använder SqlCommand för att exekvera SQL-frågan
+                    // Skapar ett SqlCommand-objekt för att exekvera SQL-frågan.
+                    // Använder ExecuteReader för att läsa data från databasen.
                     using (var command = new SqlCommand(sql, connection))
+                    using (var reader = command.ExecuteReader())
                     {
-                        // Använder SqlDataReader för att läsa resultaten från SQL-frågan
-                        using (var reader = command.ExecuteReader())
+                        while (reader.Read())
                         {
-                            // Loopar igenom resultaten och skapar Genre-objekt för varje rad
-                            while (reader.Read())
+                            genres.Add(new Genre
                             {
-                                // Skapar ett nytt Genre-objekt och fyller det med data från databasen
-                                var genre = new Genre
-                                {
-                                    GenreId = reader.GetInt32(0),
-                                    GenreName = reader.GetString(1)
-                                };
-
-                                // Lägger till Genre-objektet i listan
-                                genres.Add(genre);
-                            }
+                                GenreId = reader.GetInt32(0),
+                                GenreName = reader.GetString(1)
+                            });
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                // Hanterar eventuella fel som kan uppstå
                 throw new Exception("Ett fel uppstod när genrer hämtades från databasen.", ex);
             }
 
-            return genres; // Returnerar listan med alla genrer
+            return genres;
         }
     }
 }

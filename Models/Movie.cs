@@ -4,13 +4,14 @@ using System.Text;
 
 namespace ADONet_MovieRegister.Models
 {
-    // Modellklass för en film, med egenskaper för ID, titel, år, genre-ID och genre-namn
+    // Representerar en film i systemet och används för att överföra data mellan databas och UI
     public class Movie
-        {
-            public int MovieId { get; set; }
-            public required string Title { get; set; }
-            public int Year { get; set; }
-            public int GenreId { get; set; }
-            public required string GenreName { get; set; } 
-        }
+    {
+        public int MovieId { get; set; }
+        public required string Title { get; set; }
+        public int Year { get; set; }
+        public int GenreId { get; set; }
+        public required string GenreName { get; set; }
     }
+
+}
