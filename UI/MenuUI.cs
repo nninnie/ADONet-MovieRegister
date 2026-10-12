@@ -26,7 +26,7 @@ namespace ADONet_MovieRegister.UI
                 AnsiConsole.Clear();
 
                 AnsiConsole.Write(
-                    new Panel("[bold hotpink]FILMREGISTER[/]")
+                    new Panel("[bold hotpink]=== FILMREGISTER ===[/]")
                         .Border(BoxBorder.Rounded)
                         .BorderColor(Color.Orange3)
                 );
