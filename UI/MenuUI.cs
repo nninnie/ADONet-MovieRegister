@@ -320,6 +320,17 @@ namespace ADONet_MovieRegister.UI
                     .AddChoices(movies)
             );
 
+            // Frågar användaren om bekräftelse innan filmen tas bort
+            AnsiConsole.MarkupLine($"\n[red]Är du säker på att du vill ta bort filmen '{movieChoice.Title}'?[/]");
+            var confirm = AnsiConsole.Confirm("Bekräfta borttagning:");
+
+            if (!confirm)
+            {
+                AnsiConsole.MarkupLine("\n[yellow]Borttagning avbröts.[/]");
+                WaitForKey();
+                return;
+            }
+
             movieRepo.DeleteMovie(movieChoice.MovieId); // Tar bort filmen från repository
 
             // Skriver ut ett meddelande om att filmen har tagits bort
