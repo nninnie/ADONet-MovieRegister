@@ -151,7 +151,7 @@ UI beror på repository‑klasser, inte på SQL‑kod direkt.
 Justera connection string i repository‑klasserna så den matchar din lokala SQL Server‑instans:
 
 ```csharp
-Server=.;Database=MovieRegisterDB;Trusted_Connection=True;
+Server=localhost;Database=MovieRegisterDB;Trusted_Connection=True;Encrypt=True;TrustServerCertificate=True;
 ```
 
 ---
