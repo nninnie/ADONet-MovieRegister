@@ -21,6 +21,18 @@ Data lagras i en SQL Server‑databas med två relaterade tabeller: **Movie** oc
 
 ---
 
+## 📸 Så ser det ut
+
+| Huvudmeny | Alla filmer |
+|---|---|
+| <img src="screenshots/movie-meny.png" alt="Huvudmenyn i filmregistret" width="300"/> | <img src="screenshots/movie-lista.png" alt="Alla filmer med genre i en tabell" width="460"/> |
+
+| Sök efter genre | Uppdatera film |
+|---|---|
+| <img src="screenshots/movie-genre.png" alt="Välj genre att söka på" width="360"/> | <img src="screenshots/movie-uppdatera.png" alt="Välj film att uppdatera" width="440"/> |
+
+---
+
 ## 🛠️ Tekniker & Arkitektur
 
 ### **Språk & Ramverk**
